@@ -21,6 +21,7 @@
         @keyframes bounceIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
         .chart-bar { transition: height 0.5s ease; }
         .ring-progress { transition: stroke-dashoffset 0.5s ease; }
+        .tier-disabled { opacity: 0.4; pointer-events: none; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -56,7 +57,6 @@
     <main id="dashboardPage" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- 顶部统计 -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- 总员工 -->
             <div class="bg-white rounded-2xl p-6 card-shadow">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -67,8 +67,6 @@
                 <div class="text-3xl font-bold text-gray-900 mb-1" id="dashTotal">0</div>
                 <div class="text-sm text-gray-500">AI 员工</div>
             </div>
-
-            <!-- 正在上班 -->
             <div class="bg-white rounded-2xl p-6 card-shadow">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -79,8 +77,6 @@
                 <div class="text-3xl font-bold text-green-600 mb-1" id="dashWorking">0</div>
                 <div class="text-sm text-gray-500">正在上班</div>
             </div>
-
-            <!-- 今日费用 -->
             <div class="bg-white rounded-2xl p-6 card-shadow">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -91,8 +87,6 @@
                 <div class="text-3xl font-bold text-gray-900 mb-1" id="dashTodayCost">¥ 0.00</div>
                 <div class="text-sm text-gray-500">今日费用</div>
             </div>
-
-            <!-- 节省金额 -->
             <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
@@ -105,7 +99,7 @@
             </div>
         </div>
 
-        <!-- 员工状态列表（移到上面） -->
+        <!-- 员工状态列表 -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="lg:col-span-2 bg-white rounded-2xl card-shadow overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -117,9 +111,7 @@
                         查看全部 <i class="fas fa-arrow-right ml-1"></i>
                     </button>
                 </div>
-                <div id="dashEmployeeList" class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-                    <!-- 动态生成 -->
-                </div>
+                <div id="dashEmployeeList" class="divide-y divide-gray-100 max-h-80 overflow-y-auto"></div>
                 <div id="dashEmptyState" class="p-8 text-center">
                     <div class="text-4xl mb-3">🦞</div>
                     <p class="text-gray-500 mb-4">还没有员工，立即招聘第一位</p>
@@ -129,9 +121,7 @@
                 </div>
             </div>
 
-            <!-- 快速操作 & 活动日志 -->
             <div class="space-y-6">
-                <!-- 快速操作 -->
                 <div class="bg-white rounded-2xl p-6 card-shadow">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">快速操作</h3>
                     <div class="grid grid-cols-2 gap-3">
@@ -161,8 +151,6 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- 活动日志 -->
                 <div class="bg-white rounded-2xl p-6 card-shadow">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">最近活动</h3>
                     <div id="activityLog" class="space-y-3 max-h-48 overflow-y-auto">
@@ -175,9 +163,8 @@
             </div>
         </div>
 
-        <!-- 费用趋势和资源使用（移到下面） -->
+        <!-- 费用趋势和资源使用 -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- 左侧：费用趋势图 -->
             <div class="lg:col-span-2 bg-white rounded-2xl p-6 card-shadow">
                 <div class="flex items-center justify-between mb-6">
                     <div>
@@ -195,7 +182,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- 柱状图 -->
                 <div class="flex items-end justify-between h-48 px-2">
                     <div class="flex flex-col items-center flex-1">
                         <div class="w-full flex justify-center space-x-1 mb-2" style="height: 160px; align-items: flex-end;">
@@ -259,11 +245,8 @@
                 </div>
             </div>
 
-            <!-- 右侧：资源使用 -->
             <div class="bg-white rounded-2xl p-6 card-shadow">
                 <h3 class="text-lg font-semibold text-gray-900 mb-6">资源使用情况</h3>
-
-                <!-- CPU 使用率 -->
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center space-x-2">
@@ -280,8 +263,6 @@
                         <span id="dashCpuPercent">0%</span>
                     </div>
                 </div>
-
-                <!-- 内存使用率 -->
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center space-x-2">
@@ -298,8 +279,6 @@
                         <span id="dashMemPercent">0%</span>
                     </div>
                 </div>
-
-                <!-- 存储使用率 -->
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center space-x-2">
@@ -316,8 +295,6 @@
                         <span id="dashDiskPercent">0%</span>
                     </div>
                 </div>
-
-                <!-- 运行效率环 -->
                 <div class="bg-gray-50 rounded-xl p-4">
                     <div class="flex items-center justify-between">
                         <div>
@@ -366,9 +343,7 @@
                     </button>
                 </div>
             </div>
-            <div class="divide-y divide-gray-100" id="employeeList">
-                <!-- 动态生成 -->
-            </div>
+            <div class="divide-y divide-gray-100" id="employeeList"></div>
             <div id="emptyState" class="p-12 text-center hidden">
                 <div class="text-5xl mb-4">🦞</div>
                 <h3 class="text-lg font-semibold text-gray-700 mb-2">还没有员工</h3>
@@ -394,21 +369,46 @@
     <main id="calculatorPage" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
         <div class="mb-8">
             <h1 class="text-2xl font-bold text-gray-900 mb-2">省钱计算器</h1>
-            <p class="text-gray-500">基于 Azure Container Instances 真实定价</p>
+            <p class="text-gray-500">按需计费，停机只收 ¥0.2/小时</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="bg-white rounded-2xl card-shadow p-6">
-                <h2 class="font-semibold text-gray-900 mb-4">Azure 定价参考</h2>
-                <div class="bg-blue-50 rounded-xl p-4 mb-6 text-sm">
-                    <div class="flex items-center space-x-2 mb-2">
-                        <i class="fab fa-microsoft text-blue-600"></i>
-                        <span class="font-medium text-blue-800">Azure Container Instances</span>
-                    </div>
-                    <div class="text-blue-700 space-y-1">
-                        <div>• vCPU: ¥0.50/小时</div>
-                        <div>• 内存: ¥0.15/GB/小时</div>
-                        <div>• 存储: ¥0.50/GB/月</div>
+                <!-- 套餐定价表 -->
+                <h2 class="font-semibold text-gray-900 mb-4">套餐定价一览</h2>
+                <div class="bg-gray-50 rounded-xl p-4 mb-6 text-sm">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-500 border-b border-gray-200">
+                                <th class="pb-2">套餐</th>
+                                <th class="pb-2">配置</th>
+                                <th class="pb-2">普通模型</th>
+                                <th class="pb-2">高级模型</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium">💡 轻量</td>
+                                <td class="py-2">1核/2G/10G</td>
+                                <td class="py-2 text-purple-600">¥1/时</td>
+                                <td class="py-2 text-gray-400">-</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-2 font-medium">⚡ 标准</td>
+                                <td class="py-2">2核/4G/40G</td>
+                                <td class="py-2 text-purple-600">¥2/时</td>
+                                <td class="py-2 text-purple-600">¥3/时</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 font-medium">🚀 专业</td>
+                                <td class="py-2">4核/8G/40G+</td>
+                                <td class="py-2 text-purple-600">¥4/时</td>
+                                <td class="py-2 text-purple-600">¥6/时</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 pt-2 border-t border-gray-200 text-gray-500">
+                        停机状态：所有套餐统一 <span class="text-orange-600 font-medium">¥0.2/小时</span>
                     </div>
                 </div>
 
@@ -428,24 +428,40 @@
                     <input type="range" id="calcHours" min="1" max="24" value="6" class="w-full" oninput="updateCalculator()">
                 </div>
 
-                <div class="grid grid-cols-3 gap-3">
-                    <div onclick="selectCalcTier('basic')" id="calcTierBasic" class="border-2 border-purple-500 bg-purple-50 rounded-xl p-4 cursor-pointer text-center">
-                        <div class="text-lg mb-1">💡</div>
-                        <div class="font-medium text-sm">基础版</div>
-                        <div class="text-xs text-gray-500">2核4G</div>
-                        <div class="text-xs text-purple-600 mt-1">¥1.60/小时</div>
+                <!-- 套餐选择 -->
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-gray-700 mb-2 block">选择套餐</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div onclick="selectCalcTier('low')" id="calcTierLow" class="border-2 border-purple-500 bg-purple-50 rounded-xl p-4 cursor-pointer text-center">
+                            <div class="text-lg mb-1">💡</div>
+                            <div class="font-medium text-sm">轻量版</div>
+                            <div class="text-xs text-gray-500">1核/2G/10G</div>
+                        </div>
+                        <div onclick="selectCalcTier('medium')" id="calcTierMedium" class="border-2 border-gray-200 hover:border-purple-300 rounded-xl p-4 cursor-pointer text-center transition">
+                            <div class="text-lg mb-1">⚡</div>
+                            <div class="font-medium text-sm">标准版</div>
+                            <div class="text-xs text-gray-500">2核/4G/40G</div>
+                        </div>
+                        <div onclick="selectCalcTier('high')" id="calcTierHigh" class="border-2 border-gray-200 hover:border-purple-300 rounded-xl p-4 cursor-pointer text-center transition">
+                            <div class="text-lg mb-1">🚀</div>
+                            <div class="font-medium text-sm">专业版</div>
+                            <div class="text-xs text-gray-500">4核/8G/40G+</div>
+                        </div>
                     </div>
-                    <div onclick="selectCalcTier('standard')" id="calcTierStandard" class="border-2 border-gray-200 hover:border-purple-300 rounded-xl p-4 cursor-pointer text-center transition">
-                        <div class="text-lg mb-1">⚡</div>
-                        <div class="font-medium text-sm">标准版</div>
-                        <div class="text-xs text-gray-500">4核8G</div>
-                        <div class="text-xs text-purple-600 mt-1">¥3.20/小时</div>
-                    </div>
-                    <div onclick="selectCalcTier('pro')" id="calcTierPro" class="border-2 border-gray-200 hover:border-purple-300 rounded-xl p-4 cursor-pointer text-center transition">
-                        <div class="text-lg mb-1">🚀</div>
-                        <div class="font-medium text-sm">专业版</div>
-                        <div class="text-xs text-gray-500">8核16G</div>
-                        <div class="text-xs text-purple-600 mt-1">¥6.40/小时</div>
+                </div>
+
+                <!-- 模型选择 -->
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-2 block">选择模型</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div onclick="selectCalcModel('normal')" id="calcModelNormal" class="border-2 border-purple-500 bg-purple-50 rounded-xl p-3 cursor-pointer text-center">
+                            <div class="font-medium text-sm">普通模型</div>
+                            <div class="text-xs text-gray-500">GLM / Kimi / MiniMax</div>
+                        </div>
+                        <div onclick="selectCalcModel('advanced')" id="calcModelAdvanced" class="border-2 border-gray-200 rounded-xl p-3 cursor-pointer text-center transition tier-disabled">
+                            <div class="font-medium text-sm">高级模型</div>
+                            <div class="text-xs text-gray-500">GPT / Opus / Gemini</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -453,14 +469,14 @@
             <div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
-                        <div class="text-red-700 font-medium mb-2">传统 24/7 托管</div>
+                        <div class="text-red-700 font-medium mb-2">传统 24/7 运行</div>
                         <div class="text-3xl font-bold text-red-600" id="calcTraditional">¥ 0</div>
                         <div class="text-sm text-red-500">每月</div>
                     </div>
                     <div class="bg-green-50 border border-green-200 rounded-2xl p-6">
                         <div class="text-green-700 font-medium mb-2">ClawCloud 按需</div>
                         <div class="text-3xl font-bold text-green-600" id="calcClawcloud">¥ 0</div>
-                        <div class="text-sm text-green-500">每月</div>
+                        <div class="text-sm text-green-500">每月 (含停机费)</div>
                     </div>
                 </div>
 
@@ -477,6 +493,25 @@
                     </div>
                     <div class="bg-white bg-opacity-20 rounded-xl p-4">
                         <div class="font-semibold">一年能省 <span id="calcYearlySavings">¥ 0</span></div>
+                    </div>
+                </div>
+
+                <!-- 费用明细 -->
+                <div class="bg-white rounded-2xl card-shadow p-6 mt-6">
+                    <h3 class="font-semibold text-gray-900 mb-3">费用构成</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">运行费用</span>
+                            <span class="font-medium" id="calcRunCost">¥ 0/月</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">停机费用</span>
+                            <span class="font-medium text-orange-600" id="calcIdleCost">¥ 0/月</span>
+                        </div>
+                        <div class="flex justify-between pt-2 border-t border-gray-100">
+                            <span class="text-gray-700 font-medium">当前单价</span>
+                            <span class="font-bold text-purple-600" id="calcCurrentRate">¥1/时 运行 · ¥0.2/时 停机</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -524,11 +559,13 @@
                 </button>
             </div>
             <div class="p-6">
+                <!-- 名字 -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">给 TA 起个名字</label>
                     <input type="text" id="newEmployeeName" placeholder="例如：小助手、Luna、Max..." class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none">
                 </div>
 
+                <!-- 专长 -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">TA 的专长</label>
                     <div class="grid grid-cols-3 gap-3">
@@ -547,40 +584,80 @@
                     </div>
                 </div>
 
-                <div class="mb-6 space-y-3">
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-medium text-gray-700">🧠 思考速度</span>
-                            <span id="hireCpuDisplay" class="text-purple-600 font-medium">2 核</span>
+                <!-- 套餐选择 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">选择套餐</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div onclick="selectHireTier('low')" id="hireTierLow" class="hire-tier-option border-2 border-purple-500 bg-purple-50 rounded-xl p-4 cursor-pointer text-center">
+                            <div class="text-2xl mb-2">💡</div>
+                            <div class="font-semibold">轻量版</div>
+                            <div class="text-xs text-gray-500 mt-1">1核 / 2GB / 10GB</div>
+                            <div class="text-sm text-purple-600 font-bold mt-2">¥1/小时</div>
+                            <div class="text-xs text-gray-400">仅普通模型</div>
                         </div>
-                        <input type="range" id="hireCpu" min="1" max="8" value="2" class="w-full" oninput="updateHireConfig()">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-medium text-gray-700">💭 短期记忆</span>
-                            <span id="hireMemDisplay" class="text-purple-600 font-medium">4 GB</span>
+                        <div onclick="selectHireTier('medium')" id="hireTierMedium" class="hire-tier-option border-2 border-gray-200 rounded-xl p-4 cursor-pointer text-center hover:border-purple-300 transition">
+                            <div class="text-2xl mb-2">⚡</div>
+                            <div class="font-semibold">标准版</div>
+                            <div class="text-xs text-gray-500 mt-1">2核 / 4GB / 40GB</div>
+                            <div class="text-sm text-purple-600 font-bold mt-2">¥2-3/小时</div>
+                            <div class="text-xs text-gray-400">支持高级模型</div>
                         </div>
-                        <input type="range" id="hireMem" min="1" max="32" value="4" class="w-full" oninput="updateHireConfig()">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-medium text-gray-700">📚 长期记忆</span>
-                            <span id="hireDiskDisplay" class="text-purple-600 font-medium">20 GB</span>
+                        <div onclick="selectHireTier('high')" id="hireTierHigh" class="hire-tier-option border-2 border-gray-200 rounded-xl p-4 cursor-pointer text-center hover:border-purple-300 transition">
+                            <div class="text-2xl mb-2">🚀</div>
+                            <div class="font-semibold">专业版</div>
+                            <div class="text-xs text-gray-500 mt-1">4核 / 8GB / 40GB+</div>
+                            <div class="text-sm text-purple-600 font-bold mt-2">¥4-6/小时</div>
+                            <div class="text-xs text-gray-400">支持高级模型</div>
                         </div>
-                        <input type="range" id="hireDisk" min="10" max="500" value="20" class="w-full" oninput="updateHireConfig()">
                     </div>
                 </div>
 
+                <!-- 模型选择 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">选择模型</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div onclick="selectHireModel('normal')" id="hireModelNormal" class="hire-model-option border-2 border-purple-500 bg-purple-50 rounded-xl p-4 cursor-pointer">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl">🤖</div>
+                                <div>
+                                    <div class="font-semibold">普通模型</div>
+                                    <div class="text-xs text-gray-500">GLM / Kimi / MiniMax</div>
+                                </div>
+                            </div>
+                            <div class="text-right mt-2">
+                                <span class="text-sm text-purple-600 font-bold" id="hireNormalPrice">¥1/小时</span>
+                            </div>
+                        </div>
+                        <div onclick="selectHireModel('advanced')" id="hireModelAdvanced" class="hire-model-option border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-purple-300 transition tier-disabled">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl">✨</div>
+                                <div>
+                                    <div class="font-semibold">高级模型</div>
+                                    <div class="text-xs text-gray-500">GPT / Opus / Gemini</div>
+                                </div>
+                            </div>
+                            <div class="text-right mt-2">
+                                <span class="text-sm text-purple-600 font-bold" id="hireAdvancedPrice">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 价格总览 -->
                 <div class="bg-purple-50 rounded-xl p-4 mb-6">
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center mb-2">
                         <div>
-                            <div class="font-medium text-purple-900">预估工资</div>
-                            <div class="text-sm text-purple-600">Azure 定价</div>
+                            <div class="font-medium text-purple-900">运行中费率</div>
+                            <div class="text-xs text-purple-500" id="hireTierSummary">轻量版 · 普通模型</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-purple-700" id="hirePrice">¥ 0.66</div>
+                            <div class="text-2xl font-bold text-purple-700" id="hirePrice">¥ 1.00</div>
                             <div class="text-sm text-purple-500">/小时</div>
                         </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-purple-200">
+                        <div class="text-sm text-gray-500">停机中费率</div>
+                        <div class="text-sm font-medium text-orange-600">¥ 0.20 /小时</div>
                     </div>
                 </div>
 
@@ -669,8 +746,8 @@
                 </div>
 
                 <div class="mb-6">
-                    <h3 class="font-semibold text-gray-900 mb-3">能力配置</h3>
-                    <div class="grid grid-cols-3 gap-3" id="detailConfig"></div>
+                    <h3 class="font-semibold text-gray-900 mb-3">套餐与配置</h3>
+                    <div id="detailConfig"></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mb-6">
@@ -689,19 +766,42 @@
 
     <script>
         // ========== 数据模型 ==========
-        const AZURE_PRICING = { vcpuPerHour: 0.50, memPerHour: 0.15, storagePerMonth: 0.50 };
+        const IDLE_RATE = 0.2; // 停机费率 ¥/小时
+
+        const TIERS = {
+            low:    { label: '轻量版', emoji: '💡', cpu: 1, mem: 2,  disk: 10,  normalRate: 1, advancedRate: null },
+            medium: { label: '标准版', emoji: '⚡', cpu: 2, mem: 4,  disk: 40,  normalRate: 2, advancedRate: 3 },
+            high:   { label: '专业版', emoji: '🚀', cpu: 4, mem: 8,  disk: 40,  normalRate: 4, advancedRate: 6 }
+        };
+
+        const MODEL_TYPES = {
+            normal:   { label: '普通模型', models: 'GLM / Kimi / MiniMax', icon: '🤖' },
+            advanced: { label: '高级模型', models: 'GPT / Opus / Gemini',  icon: '✨' }
+        };
+
         const ROLE_CONFIG = {
             assistant: { emoji: '💬', label: '私人助理', gradient: 'from-pink-400 to-purple-500' },
-            coder: { emoji: '💻', label: '代码助手', gradient: 'from-blue-400 to-cyan-500' },
-            creative: { emoji: '🎨', label: '创意设计', gradient: 'from-orange-400 to-red-500' }
+            coder:     { emoji: '💻', label: '代码助手', gradient: 'from-blue-400 to-cyan-500' },
+            creative:  { emoji: '🎨', label: '创意设计', gradient: 'from-orange-400 to-red-500' }
         };
+
         const EMOJIS = ['🦞', '🤖', '🎨', '🦊', '🐱', '🐶', '🦄', '🐼', '🦁', '🐯'];
 
         let employees = [];
         let currentDetailId = null;
         let selectedRole = 'assistant';
-        let calcTier = 'basic';
+        let selectedHireTier = 'low';
+        let selectedHireModel = 'normal';
+        let calcTier = 'low';
+        let calcModel = 'normal';
         let activityLogs = [];
+
+        // 根据套餐和模型获取运行费率
+        function getHourlyRate(tier, modelType) {
+            const t = TIERS[tier];
+            if (modelType === 'advanced' && t.advancedRate !== null) return t.advancedRate;
+            return t.normalRate;
+        }
 
         // 默认3名员工
         function initDefaultEmployees() {
@@ -709,18 +809,21 @@
             employees = [
                 {
                     id: generateId(), name: '小助手', role: 'assistant', emoji: '🦞',
-                    cpu: 2, mem: 4, disk: 20, hourlyRate: calculateHourlyRate(2, 4),
-                    isWorking: true, startTime: now - 3600000, todayWorkSeconds: 7200 // 已工作3小时
+                    tier: 'low', modelType: 'normal',
+                    cpu: 1, mem: 2, disk: 10, hourlyRate: 1,
+                    isWorking: true, startTime: now - 3600000, todayWorkSeconds: 7200
                 },
                 {
                     id: generateId(), name: '代码大师', role: 'coder', emoji: '🤖',
-                    cpu: 4, mem: 8, disk: 50, hourlyRate: calculateHourlyRate(4, 8),
-                    isWorking: true, startTime: now - 1800000, todayWorkSeconds: 5400 // 已工作2小时
+                    tier: 'high', modelType: 'advanced',
+                    cpu: 4, mem: 8, disk: 40, hourlyRate: 6,
+                    isWorking: true, startTime: now - 1800000, todayWorkSeconds: 5400
                 },
                 {
                     id: generateId(), name: '创意精灵', role: 'creative', emoji: '🦄',
-                    cpu: 2, mem: 4, disk: 100, hourlyRate: calculateHourlyRate(2, 4),
-                    isWorking: false, startTime: null, todayWorkSeconds: 3600 // 休息中，今天工作了1小时
+                    tier: 'medium', modelType: 'normal',
+                    cpu: 2, mem: 4, disk: 40, hourlyRate: 2,
+                    isWorking: false, startTime: null, todayWorkSeconds: 3600
                 }
             ];
             activityLogs = [
@@ -733,12 +836,19 @@
         // ========== 工具函数 ==========
         const generateId = () => 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         const getRandomEmoji = () => EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-        const calculateHourlyRate = (cpu, mem) => cpu * AZURE_PRICING.vcpuPerHour + mem * AZURE_PRICING.memPerHour;
         const formatTime = (s) => `${Math.floor(s/3600)}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
         const formatMoney = (a) => '¥ ' + a.toFixed(2);
 
+        function getTierBadgeColor(tier) {
+            const colors = { low: 'bg-blue-100 text-blue-700', medium: 'bg-purple-100 text-purple-700', high: 'bg-orange-100 text-orange-700' };
+            return colors[tier] || colors.low;
+        }
+
+        function getModelBadgeColor(modelType) {
+            return modelType === 'advanced' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600';
+        }
+
         function addLog(message, type = 'info') {
-            const icons = { hire: 'fa-user-plus text-green-500', work: 'fa-play text-blue-500', stop: 'fa-stop text-red-500', delete: 'fa-user-minus text-gray-500' };
             activityLogs.unshift({ message, type, time: new Date().toLocaleTimeString() });
             if (activityLogs.length > 10) activityLogs.pop();
             renderActivityLog();
@@ -761,17 +871,14 @@
             const navMap = { dashboard: 'navDashboard', employees: 'navEmployees', calculator: 'navCalculator', billing: 'navBilling' };
             ['dashboard', 'employees', 'calculator', 'billing'].forEach(p => {
                 document.getElementById(p + 'Page').classList.add('hidden');
-                // 重置导航样式
                 const navBtn = document.getElementById(navMap[p]);
                 navBtn.classList.remove('text-purple-600', 'font-medium');
                 navBtn.classList.add('text-gray-600');
             });
             document.getElementById(page + 'Page').classList.remove('hidden');
-            // 高亮当前导航
             const activeNav = document.getElementById(navMap[page]);
             activeNav.classList.remove('text-gray-600');
             activeNav.classList.add('text-purple-600', 'font-medium');
-
             if (page === 'calculator') updateCalculator();
             if (page === 'billing') updateBillingPage();
         }
@@ -803,33 +910,25 @@
             document.getElementById('dashSavingsPercent').textContent = '省 ' + savedPercent + '%';
             document.getElementById('navSavings').textContent = formatMoney(saved);
 
-            // 资源使用
             const maxCpu = 32, maxMem = 128, maxDisk = 1000;
             document.getElementById('dashCpuUsed').textContent = totalCpu + ' 核';
             document.getElementById('dashCpuBar').style.width = (totalCpu / maxCpu * 100) + '%';
             document.getElementById('dashCpuPercent').textContent = Math.round(totalCpu / maxCpu * 100) + '%';
-
             document.getElementById('dashMemUsed').textContent = totalMem + ' GB';
             document.getElementById('dashMemBar').style.width = (totalMem / maxMem * 100) + '%';
             document.getElementById('dashMemPercent').textContent = Math.round(totalMem / maxMem * 100) + '%';
-
             document.getElementById('dashDiskUsed').textContent = totalDisk + ' GB';
             document.getElementById('dashDiskBar').style.width = (totalDisk / maxDisk * 100) + '%';
             document.getElementById('dashDiskPercent').textContent = Math.round(totalDisk / maxDisk * 100) + '%';
 
-            // 效率
             const efficiency = working > 0 ? Math.min(100, Math.round((working / total) * 100 * (savedPercent / 100 + 0.5))) : 0;
             document.getElementById('dashEfficiency').textContent = efficiency + '%';
             document.getElementById('efficiencyRing').style.strokeDashoffset = 176 - (176 * efficiency / 100);
-
-            // 周节省
             document.getElementById('weekSavings').textContent = formatMoney(saved * 7);
 
-            // 今日柱状图
             const todayPercent = potential247 > 0 ? Math.max(5, (todayCost / potential247) * 100) : 5;
             document.getElementById('todayBar').style.height = todayPercent + '%';
 
-            // 员工列表
             renderDashEmployeeList();
         }
 
@@ -846,9 +945,12 @@
             emptyEl.classList.add('hidden');
             listEl.innerHTML = employees.slice(0, 5).map(emp => {
                 const role = ROLE_CONFIG[emp.role];
+                const tier = TIERS[emp.tier];
+                const model = MODEL_TYPES[emp.modelType];
                 const isWorking = emp.isWorking;
                 const workSec = emp.todayWorkSeconds + (isWorking ? Math.floor((Date.now() - emp.startTime) / 1000) : 0);
                 const cost = (workSec / 3600) * emp.hourlyRate;
+                const currentRate = isWorking ? emp.hourlyRate : IDLE_RATE;
 
                 return `
                 <div class="p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer" onclick="showDetail('${emp.id}')">
@@ -859,13 +961,16 @@
                         </div>
                         <div>
                             <div class="font-medium text-gray-900 text-sm">${emp.name}</div>
-                            <div class="text-xs text-gray-500">${role.label}</div>
+                            <div class="text-xs text-gray-500">
+                                <span class="inline-block px-1.5 py-0.5 rounded ${getTierBadgeColor(emp.tier)} text-xs mr-1">${tier.label}</span>
+                                <span class="inline-block px-1.5 py-0.5 rounded ${getModelBadgeColor(emp.modelType)} text-xs">${model.label}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="text-right">
                             <div class="text-sm font-medium text-gray-900">${formatMoney(cost)}</div>
-                            <div class="text-xs text-gray-500">${formatTime(workSec)}</div>
+                            <div class="text-xs ${isWorking ? 'text-green-600' : 'text-orange-500'}">¥${currentRate}/时</div>
                         </div>
                         <button onclick="event.stopPropagation(); toggleWork('${emp.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg ${isWorking ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">
                             <i class="fas fa-${isWorking ? 'stop' : 'play'} text-xs"></i>
@@ -890,9 +995,12 @@
             emptyEl.classList.add('hidden');
             listEl.innerHTML = employees.map(emp => {
                 const role = ROLE_CONFIG[emp.role];
+                const tier = TIERS[emp.tier];
+                const model = MODEL_TYPES[emp.modelType];
                 const isWorking = emp.isWorking;
                 const workSec = emp.todayWorkSeconds + (isWorking ? Math.floor((Date.now() - emp.startTime) / 1000) : 0);
                 const cost = (workSec / 3600) * emp.hourlyRate;
+                const currentRate = isWorking ? emp.hourlyRate : IDLE_RATE;
 
                 return `
                 <div class="p-6 hover:bg-gray-50 transition cursor-pointer" onclick="showDetail('${emp.id}')">
@@ -904,7 +1012,11 @@
                             </div>
                             <div>
                                 <div class="font-semibold text-gray-900">${emp.name}</div>
-                                <div class="text-sm text-gray-500">${role.label} · ${emp.cpu}核${emp.mem}G</div>
+                                <div class="text-sm text-gray-500 mb-1">${role.label}</div>
+                                <div class="flex space-x-1">
+                                    <span class="inline-block px-2 py-0.5 rounded text-xs ${getTierBadgeColor(emp.tier)}">${tier.label} ${emp.cpu}核${emp.mem}G</span>
+                                    <span class="inline-block px-2 py-0.5 rounded text-xs ${getModelBadgeColor(emp.modelType)}">${model.label}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-center space-x-6">
@@ -916,9 +1028,12 @@
                                 <div class="text-sm text-gray-500">今日工资</div>
                                 <div class="font-semibold text-green-600">${formatMoney(cost)}</div>
                             </div>
-                            <span class="px-3 py-1 ${isWorking ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'} rounded-full text-sm font-medium">
-                                ${isWorking ? '上班中' : '休息中'}
-                            </span>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-400 mb-1">${isWorking ? '运行 ¥'+emp.hourlyRate+'/时' : '停机 ¥'+IDLE_RATE+'/时'}</div>
+                                <span class="px-3 py-1 ${isWorking ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-600'} rounded-full text-sm font-medium">
+                                    ${isWorking ? '上班中' : '已停机'}
+                                </span>
+                            </div>
                             <button onclick="event.stopPropagation(); toggleWork('${emp.id}')" class="px-4 py-2 ${isWorking ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} rounded-lg text-sm font-medium">
                                 ${isWorking ? '下班' : '上班'}
                             </button>
@@ -937,11 +1052,11 @@
 
             if (resting.length > 0) {
                 const names = resting.map(e => e.name).join('、');
-                const savedPerHour = resting.reduce((sum, e) => sum + e.hourlyRate, 0);
-                tipText.textContent = `${names} 正在休息中，每小时为你节省 ${formatMoney(savedPerHour)}。`;
+                const savedPerHour = resting.reduce((sum, e) => sum + (e.hourlyRate - IDLE_RATE), 0);
+                tipText.textContent = `${names} 已停机，每小时为你节省 ${formatMoney(savedPerHour)}（仅收停机费 ¥${IDLE_RATE}/时）。`;
                 tipEl.classList.remove('hidden');
             } else if (employees.length > 0) {
-                tipText.textContent = '所有员工都在上班中。点击"下班"可立即停止计费。';
+                tipText.textContent = '所有员工都在运行中。点击"下班"可切换为停机状态，每小时仅收 ¥0.2。';
                 tipEl.classList.remove('hidden');
             } else {
                 tipEl.classList.add('hidden');
@@ -957,11 +1072,11 @@
                 emp.todayWorkSeconds += Math.floor((Date.now() - emp.startTime) / 1000);
                 emp.isWorking = false;
                 emp.startTime = null;
-                addLog(`${emp.name} 下班了`, 'stop');
+                addLog(`${emp.name} 已停机 (¥${IDLE_RATE}/时)`, 'stop');
             } else {
                 emp.isWorking = true;
                 emp.startTime = Date.now();
-                addLog(`${emp.name} 开始上班`, 'work');
+                addLog(`${emp.name} 开始上班 (¥${emp.hourlyRate}/时)`, 'work');
             }
 
             renderEmployeeList();
@@ -979,7 +1094,7 @@
                     emp.startTime = null;
                 }
             });
-            addLog(startWork ? '全体员工开始上班' : '全体员工下班', startWork ? 'work' : 'stop');
+            addLog(startWork ? '全体员工开始上班' : '全体员工已停机', startWork ? 'work' : 'stop');
             renderEmployeeList();
             updateDashboard();
         }
@@ -990,7 +1105,10 @@
             document.getElementById('hireModal').classList.add('flex');
             document.getElementById('newEmployeeName').value = '';
             selectRole('assistant');
-            updateHireConfig();
+            selectedHireTier = 'low';
+            selectedHireModel = 'normal';
+            selectHireTier('low');
+            selectHireModel('normal');
         }
 
         function closeHireModal() {
@@ -1009,26 +1127,69 @@
             el.classList.add('border-purple-500', 'bg-purple-50');
         }
 
-        function updateHireConfig() {
-            const cpu = parseInt(document.getElementById('hireCpu').value);
-            const mem = parseInt(document.getElementById('hireMem').value);
-            const disk = parseInt(document.getElementById('hireDisk').value);
+        function selectHireTier(tier) {
+            selectedHireTier = tier;
+            // 高亮选中套餐
+            document.querySelectorAll('.hire-tier-option').forEach(el => {
+                el.classList.remove('border-purple-500', 'bg-purple-50');
+                el.classList.add('border-gray-200');
+            });
+            const el = document.getElementById('hireTier' + tier.charAt(0).toUpperCase() + tier.slice(1));
+            el.classList.remove('border-gray-200');
+            el.classList.add('border-purple-500', 'bg-purple-50');
 
-            document.getElementById('hireCpuDisplay').textContent = cpu + ' 核';
-            document.getElementById('hireMemDisplay').textContent = mem + ' GB';
-            document.getElementById('hireDiskDisplay').textContent = disk + ' GB';
-            document.getElementById('hirePrice').textContent = formatMoney(calculateHourlyRate(cpu, mem));
+            const t = TIERS[tier];
+            const advEl = document.getElementById('hireModelAdvanced');
+
+            // 轻量版不支持高级模型
+            if (t.advancedRate === null) {
+                advEl.classList.add('tier-disabled');
+                if (selectedHireModel === 'advanced') {
+                    selectHireModel('normal');
+                }
+                document.getElementById('hireAdvancedPrice').textContent = '不可用';
+            } else {
+                advEl.classList.remove('tier-disabled');
+                document.getElementById('hireAdvancedPrice').textContent = '¥' + t.advancedRate + '/小时';
+            }
+
+            document.getElementById('hireNormalPrice').textContent = '¥' + t.normalRate + '/小时';
+            updateHirePrice();
+        }
+
+        function selectHireModel(modelType) {
+            const t = TIERS[selectedHireTier];
+            if (modelType === 'advanced' && t.advancedRate === null) return;
+
+            selectedHireModel = modelType;
+            document.querySelectorAll('.hire-model-option').forEach(el => {
+                el.classList.remove('border-purple-500', 'bg-purple-50');
+                el.classList.add('border-gray-200');
+            });
+            const el = document.getElementById('hireModel' + modelType.charAt(0).toUpperCase() + modelType.slice(1));
+            el.classList.remove('border-gray-200');
+            el.classList.add('border-purple-500', 'bg-purple-50');
+            updateHirePrice();
+        }
+
+        function updateHirePrice() {
+            const rate = getHourlyRate(selectedHireTier, selectedHireModel);
+            const tier = TIERS[selectedHireTier];
+            const model = MODEL_TYPES[selectedHireModel];
+            document.getElementById('hirePrice').textContent = '¥ ' + rate.toFixed(2);
+            document.getElementById('hireTierSummary').textContent = tier.label + ' · ' + model.label;
         }
 
         function confirmHire() {
             const name = document.getElementById('newEmployeeName').value.trim() || '新员工' + (employees.length + 1);
-            const cpu = parseInt(document.getElementById('hireCpu').value);
-            const mem = parseInt(document.getElementById('hireMem').value);
-            const disk = parseInt(document.getElementById('hireDisk').value);
+            const tier = TIERS[selectedHireTier];
+            const rate = getHourlyRate(selectedHireTier, selectedHireModel);
 
             const emp = {
                 id: generateId(), name, role: selectedRole, emoji: getRandomEmoji(),
-                cpu, mem, disk, hourlyRate: calculateHourlyRate(cpu, mem),
+                tier: selectedHireTier, modelType: selectedHireModel,
+                cpu: tier.cpu, mem: tier.mem, disk: tier.disk,
+                hourlyRate: rate,
                 isWorking: true, startTime: Date.now(), todayWorkSeconds: 0
             };
 
@@ -1044,11 +1205,12 @@
             document.getElementById('deployEmoji').textContent = employee.emoji;
             document.getElementById('deployedName').textContent = employee.name;
 
+            const tierLabel = TIERS[employee.tier].label;
             const steps = [
                 { progress: 20, status: '正在准备工位...' },
-                { progress: 40, status: '正在部署 OpenClaw...' },
-                { progress: 60, status: '配置 ' + employee.cpu + ' 核 CPU...' },
-                { progress: 80, status: '分配 ' + employee.mem + ' GB 内存...' },
+                { progress: 40, status: '部署 ' + tierLabel + ' 套餐...' },
+                { progress: 60, status: '配置 ' + employee.cpu + ' 核 CPU / ' + employee.mem + 'GB 内存...' },
+                { progress: 80, status: '加载 ' + MODEL_TYPES[employee.modelType].label + '...' },
                 { progress: 100, status: '即将完成...' }
             ];
 
@@ -1061,7 +1223,7 @@
                 } else {
                     clearInterval(interval);
                     employees.push(employee);
-                    addLog(`${employee.name} 入职成功`, 'hire');
+                    addLog(`${employee.name} 入职 (${tierLabel} · ¥${employee.hourlyRate}/时)`, 'hire');
                     renderEmployeeList();
                     updateDashboard();
                     setTimeout(() => {
@@ -1085,19 +1247,39 @@
 
             currentDetailId = empId;
             const role = ROLE_CONFIG[emp.role];
+            const tier = TIERS[emp.tier];
+            const model = MODEL_TYPES[emp.modelType];
 
             document.getElementById('detailAvatar').className = `w-12 h-12 bg-gradient-to-br ${role.gradient} rounded-xl flex items-center justify-center text-xl`;
             document.getElementById('detailAvatar').textContent = emp.emoji;
             document.getElementById('detailName').textContent = emp.name;
-            document.getElementById('detailRole').textContent = role.label + ' · ' + emp.cpu + '核' + emp.mem + 'G';
+            document.getElementById('detailRole').textContent = role.label;
 
             updateDetailStatus(emp);
 
             document.getElementById('detailConfig').innerHTML = `
-                <div class="bg-gray-50 rounded-lg p-3"><span class="text-lg">🧠</span><div class="text-sm text-gray-500">思考</div><div class="font-medium">${emp.cpu} 核</div></div>
-                <div class="bg-gray-50 rounded-lg p-3"><span class="text-lg">💭</span><div class="text-sm text-gray-500">记忆</div><div class="font-medium">${emp.mem} GB</div></div>
-                <div class="bg-gray-50 rounded-lg p-3"><span class="text-lg">📚</span><div class="text-sm text-gray-500">存储</div><div class="font-medium">${emp.disk} GB</div></div>
-            `;
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="bg-purple-50 rounded-lg p-3">
+                        <div class="text-xs text-gray-500 mb-1">套餐</div>
+                        <div class="font-semibold">${tier.emoji} ${tier.label}</div>
+                        <div class="text-xs text-gray-500">${emp.cpu}核 / ${emp.mem}GB / ${emp.disk}GB</div>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-3">
+                        <div class="text-xs text-gray-500 mb-1">模型</div>
+                        <div class="font-semibold">${model.icon} ${model.label}</div>
+                        <div class="text-xs text-gray-500">${model.models}</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-green-50 rounded-lg p-3">
+                        <div class="text-xs text-gray-500 mb-1">运行费率</div>
+                        <div class="font-bold text-green-700">¥${emp.hourlyRate}/小时</div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3">
+                        <div class="text-xs text-gray-500 mb-1">停机费率</div>
+                        <div class="font-bold text-orange-600">¥${IDLE_RATE}/小时</div>
+                    </div>
+                </div>`;
 
             document.getElementById('detailModal').classList.remove('hidden');
             document.getElementById('detailModal').classList.add('flex');
@@ -1107,16 +1289,17 @@
             const isWorking = emp.isWorking;
             const workSec = emp.todayWorkSeconds + (isWorking ? Math.floor((Date.now() - emp.startTime) / 1000) : 0);
             const cost = (workSec / 3600) * emp.hourlyRate;
+            const currentRate = isWorking ? emp.hourlyRate : IDLE_RATE;
 
-            document.getElementById('detailStatusCard').className = `rounded-xl p-4 mb-6 ${isWorking ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`;
+            document.getElementById('detailStatusCard').className = `rounded-xl p-4 mb-6 ${isWorking ? 'bg-green-50 border border-green-200' : 'bg-orange-50 border border-orange-200'}`;
             document.getElementById('detailStatusCard').innerHTML = `
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <div class="w-3 h-3 ${isWorking ? 'bg-green-500 status-pulse' : 'bg-gray-400'} rounded-full"></div>
-                        <span class="font-medium ${isWorking ? 'text-green-700' : 'text-gray-600'}">${isWorking ? '上班中' : '休息中'}</span>
+                        <div class="w-3 h-3 ${isWorking ? 'bg-green-500 status-pulse' : 'bg-orange-400'} rounded-full"></div>
+                        <span class="font-medium ${isWorking ? 'text-green-700' : 'text-orange-600'}">${isWorking ? '运行中' : '已停机'}</span>
                     </div>
                     <div class="text-right">
-                        <span class="font-bold ${isWorking ? 'text-green-700' : 'text-gray-600'}">${formatMoney(emp.hourlyRate)}/时</span>
+                        <span class="font-bold ${isWorking ? 'text-green-700' : 'text-orange-600'}">¥${currentRate}/时</span>
                     </div>
                 </div>`;
 
@@ -1125,7 +1308,7 @@
 
             const btn = document.getElementById('detailToggleBtn');
             btn.className = `w-full py-4 rounded-xl font-semibold ${isWorking ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`;
-            btn.innerHTML = `<i class="fas fa-${isWorking ? 'stop' : 'play'} mr-2"></i>让 TA ${isWorking ? '下班' : '上班'}`;
+            btn.innerHTML = `<i class="fas fa-${isWorking ? 'stop' : 'play'} mr-2"></i>${isWorking ? '停机 (切换为 ¥'+IDLE_RATE+'/时)' : '启动 (¥'+emp.hourlyRate+'/时)'}`;
         }
 
         function closeDetailModal() {
@@ -1145,9 +1328,12 @@
         function cloneEmployee() {
             const emp = employees.find(e => e.id === currentDetailId);
             if (!emp) return;
-            const cloned = { ...emp, id: generateId(), name: emp.name + ' (副本)', emoji: getRandomEmoji(), isWorking: true, startTime: Date.now(), todayWorkSeconds: 0 };
+            const cloned = {
+                ...emp, id: generateId(), name: emp.name + ' (副本)', emoji: getRandomEmoji(),
+                isWorking: true, startTime: Date.now(), todayWorkSeconds: 0
+            };
             employees.push(cloned);
-            addLog(`克隆了 ${emp.name}`, 'hire');
+            addLog(`克隆了 ${emp.name} (${TIERS[emp.tier].label})`, 'hire');
             renderEmployeeList();
             updateDashboard();
             closeDetailModal();
@@ -1164,38 +1350,73 @@
         }
 
         // ========== 计算器 ==========
-        const CALC_TIERS = { basic: 1.60, standard: 3.20, pro: 6.40 };
-
         function selectCalcTier(tier) {
             calcTier = tier;
-            ['Basic', 'Standard', 'Pro'].forEach(t => {
+            ['Low', 'Medium', 'High'].forEach(t => {
                 const el = document.getElementById('calcTier' + t);
                 el.classList.remove('border-purple-500', 'bg-purple-50');
                 el.classList.add('border-gray-200');
             });
-            document.getElementById('calcTier' + tier.charAt(0).toUpperCase() + tier.slice(1)).classList.remove('border-gray-200');
-            document.getElementById('calcTier' + tier.charAt(0).toUpperCase() + tier.slice(1)).classList.add('border-purple-500', 'bg-purple-50');
+            const el = document.getElementById('calcTier' + tier.charAt(0).toUpperCase() + tier.slice(1));
+            el.classList.remove('border-gray-200');
+            el.classList.add('border-purple-500', 'bg-purple-50');
+
+            // 更新模型选择可用性
+            const t = TIERS[tier];
+            const advEl = document.getElementById('calcModelAdvanced');
+            if (t.advancedRate === null) {
+                advEl.classList.add('tier-disabled');
+                if (calcModel === 'advanced') {
+                    selectCalcModel('normal');
+                }
+            } else {
+                advEl.classList.remove('tier-disabled');
+            }
+
+            updateCalculator();
+        }
+
+        function selectCalcModel(model) {
+            const t = TIERS[calcTier];
+            if (model === 'advanced' && t.advancedRate === null) return;
+
+            calcModel = model;
+            ['Normal', 'Advanced'].forEach(m => {
+                const el = document.getElementById('calcModel' + m);
+                el.classList.remove('border-purple-500', 'bg-purple-50');
+                el.classList.add('border-gray-200');
+            });
+            const el = document.getElementById('calcModel' + model.charAt(0).toUpperCase() + model.slice(1));
+            el.classList.remove('border-gray-200');
+            el.classList.add('border-purple-500', 'bg-purple-50');
+
             updateCalculator();
         }
 
         function updateCalculator() {
             const count = parseInt(document.getElementById('calcEmployees').value);
             const hours = parseInt(document.getElementById('calcHours').value);
-            const rate = CALC_TIERS[calcTier];
+            const rate = getHourlyRate(calcTier, calcModel);
+            const idleHours = 24 - hours;
 
             document.getElementById('calcEmployeeCount').textContent = count + ' 位';
             document.getElementById('calcWorkHours').textContent = hours + ' 小时';
 
             const trad = count * rate * 24 * 30;
-            const claw = count * rate * hours * 30;
+            const runCost = count * rate * hours * 30;
+            const idleCost = count * IDLE_RATE * idleHours * 30;
+            const claw = runCost + idleCost;
             const save = trad - claw;
-            const pct = Math.round((save / trad) * 100);
+            const pct = trad > 0 ? Math.round((save / trad) * 100) : 0;
 
             document.getElementById('calcTraditional').textContent = '¥ ' + trad.toFixed(0);
             document.getElementById('calcClawcloud').textContent = '¥ ' + claw.toFixed(0);
             document.getElementById('calcSavings').textContent = '¥ ' + save.toFixed(0);
             document.getElementById('calcSavingsPercent').textContent = pct + '%';
             document.getElementById('calcYearlySavings').textContent = '¥ ' + (save * 12).toFixed(0);
+            document.getElementById('calcRunCost').textContent = '¥ ' + runCost.toFixed(0) + '/月';
+            document.getElementById('calcIdleCost').textContent = '¥ ' + idleCost.toFixed(0) + '/月';
+            document.getElementById('calcCurrentRate').textContent = '¥' + rate + '/时 运行 · ¥' + IDLE_RATE + '/时 停机';
         }
 
         // ========== 账单 ==========
@@ -1203,6 +1424,8 @@
             let todayCost = 0, potential = 0;
             const html = employees.map(emp => {
                 const role = ROLE_CONFIG[emp.role];
+                const tier = TIERS[emp.tier];
+                const model = MODEL_TYPES[emp.modelType];
                 const workSec = emp.todayWorkSeconds + (emp.isWorking ? Math.floor((Date.now() - emp.startTime) / 1000) : 0);
                 const cost = (workSec / 3600) * emp.hourlyRate;
                 todayCost += cost;
@@ -1210,9 +1433,15 @@
                 return `<div class="p-6 flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="w-12 h-12 bg-gradient-to-br ${role.gradient} rounded-xl flex items-center justify-center text-xl">${emp.emoji}</div>
-                        <div><div class="font-medium">${emp.name}</div><div class="text-sm text-gray-500">${role.label}</div></div>
+                        <div>
+                            <div class="font-medium">${emp.name}</div>
+                            <div class="text-sm text-gray-500">${tier.label} · ${model.label} · ¥${emp.hourlyRate}/时</div>
+                        </div>
                     </div>
-                    <div class="text-right"><div class="font-semibold">${formatMoney(cost)}</div><div class="text-sm text-gray-500">${formatTime(workSec)}</div></div>
+                    <div class="text-right">
+                        <div class="font-semibold">${formatMoney(cost)}</div>
+                        <div class="text-sm text-gray-500">${formatTime(workSec)}</div>
+                    </div>
                 </div>`;
             }).join('');
 
