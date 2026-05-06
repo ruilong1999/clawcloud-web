@@ -6,6 +6,7 @@
     <title>ClawCloud - 让你的 AI 灵活上班</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="website/js/api.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -1064,10 +1065,24 @@
         }
 
         // ========== 上下班 ==========
-        function toggleWork(empId) {
-            const emp = employees.find(e => e.id === empId);
+        async function toggleWork(empId) {
+            const emp = employees.find(e => (e.id === empId || e._id === empId));
             if (!emp) return;
 
+            // Use API if available
+            if (window.clawcloud) {
+                const newEmp = await window.clawcloud.store.toggleWork(empId || emp._id, !emp.isWorking);
+                if (newEmp) {
+                    const idx = employees.findIndex(e => (e.id === empId || e._id === empId));
+                    employees[idx] = newEmp;
+                    addLog(`${newEmp.name} ${newEmp.isWorking ? '开始上班' : '已停机'}`, newEmp.isWorking ? 'work' : 'stop');
+                    renderEmployeeList();
+                    updateDashboard();
+                    return;
+                }
+            }
+
+            // Fallback to local
             if (emp.isWorking) {
                 emp.todayWorkSeconds += Math.floor((Date.now() - emp.startTime) / 1000);
                 emp.isWorking = false;
@@ -1083,17 +1098,30 @@
             updateDashboard();
         }
 
-        function toggleAllWork(startWork) {
-            employees.forEach(emp => {
-                if (startWork && !emp.isWorking) {
-                    emp.isWorking = true;
-                    emp.startTime = Date.now();
-                } else if (!startWork && emp.isWorking) {
-                    emp.todayWorkSeconds += Math.floor((Date.now() - emp.startTime) / 1000);
-                    emp.isWorking = false;
-                    emp.startTime = null;
+        async function toggleAllWork(startWork) {
+            // Use API for each employee
+            if (window.clawcloud) {
+                for (const emp of employees) {
+                    if ((startWork && !emp.isWorking) || (!startWork && emp.isWorking)) {
+                        await window.clawcloud.store.toggleWork(emp.id || emp._id, startWork);
+                    }
                 }
-            });
+                // Reload data
+                await window.clawcloud.store.init();
+                employees.length = 0;
+                employees.push(...window.clawcloud.store.employees);
+            } else {
+                employees.forEach(emp => {
+                    if (startWork && !emp.isWorking) {
+                        emp.isWorking = true;
+                        emp.startTime = Date.now();
+                    } else if (!startWork && emp.isWorking) {
+                        emp.todayWorkSeconds += Math.floor((Date.now() - emp.startTime) / 1000);
+                        emp.isWorking = false;
+                        emp.startTime = null;
+                    }
+                });
+            }
             addLog(startWork ? '全体员工开始上班' : '全体员工已停机', startWork ? 'work' : 'stop');
             renderEmployeeList();
             updateDashboard();
@@ -1180,24 +1208,36 @@
             document.getElementById('hireTierSummary').textContent = tier.label + ' · ' + model.label;
         }
 
-        function confirmHire() {
+        async function confirmHire() {
             const name = document.getElementById('newEmployeeName').value.trim() || '新员工' + (employees.length + 1);
             const tier = TIERS[selectedHireTier];
             const rate = getHourlyRate(selectedHireTier, selectedHireModel);
 
-            const emp = {
-                id: generateId(), name, role: selectedRole, emoji: getRandomEmoji(),
-                tier: selectedHireTier, modelType: selectedHireModel,
-                cpu: tier.cpu, mem: tier.mem, disk: tier.disk,
-                hourlyRate: rate,
-                isWorking: true, startTime: Date.now(), todayWorkSeconds: 0
+            const empData = {
+                name,
+                role: selectedRole,
+                tier: selectedHireTier,
+                modelType: selectedHireModel
             };
 
             closeHireModal();
-            showDeployAnimation(emp);
+
+            // Use API if available
+            if (window.clawcloud) {
+                showDeployAnimation({ ...empData, emoji: getRandomEmoji(), cpu: tier.cpu, mem: tier.mem, disk: tier.disk, hourlyRate: rate, isWorking: true, startTime: Date.now(), todayWorkSeconds: 0 }, true);
+            } else {
+                const emp = {
+                    id: generateId(), name, role: selectedRole, emoji: getRandomEmoji(),
+                    tier: selectedHireTier, modelType: selectedHireModel,
+                    cpu: tier.cpu, mem: tier.mem, disk: tier.disk,
+                    hourlyRate: rate,
+                    isWorking: true, startTime: Date.now(), todayWorkSeconds: 0
+                };
+                showDeployAnimation(emp, false);
+            }
         }
 
-        function showDeployAnimation(employee) {
+        function showDeployAnimation(employee, useAPI = false) {
             document.getElementById('deployModal').classList.remove('hidden');
             document.getElementById('deployModal').classList.add('flex');
             document.getElementById('deployingState').classList.remove('hidden');
@@ -1215,14 +1255,27 @@
             ];
 
             let i = 0;
-            const interval = setInterval(() => {
+            const interval = setInterval(async () => {
                 if (i < steps.length) {
                     document.getElementById('deployProgress').style.width = steps[i].progress + '%';
                     document.getElementById('deployStatus').textContent = steps[i].status;
                     i++;
                 } else {
                     clearInterval(interval);
-                    employees.push(employee);
+                    if (useAPI && window.clawcloud) {
+                        // Create employee via API
+                        const newEmp = await window.clawcloud.store.hireEmployee({
+                            name: employee.name,
+                            role: employee.role,
+                            tier: employee.tier,
+                            modelType: employee.modelType
+                        });
+                        if (newEmp) {
+                            employees.push(newEmp);
+                        }
+                    } else {
+                        employees.push(employee);
+                    }
                     addLog(`${employee.name} 入职 (${tierLabel} · ¥${employee.hourlyRate}/时)`, 'hire');
                     renderEmployeeList();
                     updateDashboard();
@@ -1242,7 +1295,7 @@
 
         // ========== 详情 ==========
         function showDetail(empId) {
-            const emp = employees.find(e => e.id === empId);
+            const emp = employees.find(e => (e.id === empId || e._id === empId));
             if (!emp) return;
 
             currentDetailId = empId;
@@ -1320,33 +1373,59 @@
         function toggleWorkFromDetail() {
             if (currentDetailId) {
                 toggleWork(currentDetailId);
-                const emp = employees.find(e => e.id === currentDetailId);
+                const emp = employees.find(e => (e.id === currentDetailId || e._id === currentDetailId));
                 if (emp) updateDetailStatus(emp);
             }
         }
 
-        function cloneEmployee() {
-            const emp = employees.find(e => e.id === currentDetailId);
+        async function cloneEmployee() {
+            const emp = employees.find(e => (e.id === currentDetailId || e._id === currentDetailId));
             if (!emp) return;
-            const cloned = {
-                ...emp, id: generateId(), name: emp.name + ' (副本)', emoji: getRandomEmoji(),
-                isWorking: true, startTime: Date.now(), todayWorkSeconds: 0
-            };
-            employees.push(cloned);
-            addLog(`克隆了 ${emp.name} (${TIERS[emp.tier].label})`, 'hire');
-            renderEmployeeList();
-            updateDashboard();
-            closeDetailModal();
+
+            // Use API if available
+            if (window.clawcloud) {
+                const cloned = await window.clawcloud.store.cloneEmployee(currentDetailId || emp._id);
+                if (cloned) {
+                    employees.push(cloned);
+                    addLog(`克隆了 ${emp.name} (${TIERS[emp.tier].label})`, 'hire');
+                    renderEmployeeList();
+                    updateDashboard();
+                    closeDetailModal();
+                }
+            } else {
+                const cloned = {
+                    ...emp, id: generateId(), name: emp.name + ' (副本)', emoji: getRandomEmoji(),
+                    isWorking: true, startTime: Date.now(), todayWorkSeconds: 0
+                };
+                employees.push(cloned);
+                addLog(`克隆了 ${emp.name} (${TIERS[emp.tier].label})`, 'hire');
+                renderEmployeeList();
+                updateDashboard();
+                closeDetailModal();
+            }
         }
 
-        function deleteEmployee() {
+        async function deleteEmployee() {
             if (!currentDetailId || !confirm('确定让这位员工离职吗？')) return;
-            const emp = employees.find(e => e.id === currentDetailId);
-            employees = employees.filter(e => e.id !== currentDetailId);
-            addLog(`${emp?.name || '员工'} 已离职`, 'delete');
-            renderEmployeeList();
-            updateDashboard();
-            closeDetailModal();
+            const emp = employees.find(e => (e.id === currentDetailId || e._id === currentDetailId));
+
+            // Use API if available
+            if (window.clawcloud) {
+                const ok = await window.clawcloud.store.fireEmployee(currentDetailId || emp._id);
+                if (ok) {
+                    employees = employees.filter(e => (e.id !== currentDetailId && e._id !== currentDetailId));
+                    addLog(`${emp?.name || '员工'} 已离职`, 'delete');
+                    renderEmployeeList();
+                    updateDashboard();
+                    closeDetailModal();
+                }
+            } else {
+                employees = employees.filter(e => e.id !== currentDetailId);
+                addLog(`${emp?.name || '员工'} 已离职`, 'delete');
+                renderEmployeeList();
+                updateDashboard();
+                closeDetailModal();
+            }
         }
 
         // ========== 计算器 ==========
@@ -1465,12 +1544,37 @@
             if (!document.getElementById('billingPage').classList.contains('hidden')) updateBillingPage();
         }, 1000);
 
-        // 初始化
-        initDefaultEmployees();
-        renderEmployeeList();
-        updateDashboard();
-        updateCalculator();
-        renderActivityLog();
+        // 初始化 - 使用 API 后端
+        async function initApp() {
+            if (window.clawcloud) {
+                await window.clawcloud.store.init();
+
+                // Replace local employees with API data
+                employees = window.clawcloud.store.employees;
+
+                // Replace activities
+                const apiActivities = window.clawcloud.store.activities;
+                activityLogs = apiActivities.map(a => ({
+                    message: a.message,
+                    type: a.type,
+                    time: new Date(a.timestamp).toLocaleTimeString()
+                }));
+
+                renderEmployeeList();
+                updateDashboard();
+                updateCalculator();
+                renderActivityLog();
+            } else {
+                // Fallback to local data if API not available
+                initDefaultEmployees();
+                renderEmployeeList();
+                updateDashboard();
+                updateCalculator();
+                renderActivityLog();
+            }
+        }
+
+        initApp();
     </script>
 </body>
 </html>
